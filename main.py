@@ -23,3 +23,17 @@ class Product:
         self.name = name
         self.price = price
         self.stock = stock
+        
+class Order:
+    def __init__(self, product, amount, employee):
+        """
+        Initialize an order with a product, amount and employee.
+        
+        Parameters:
+        product (Product): The product for the order.
+        amount (int): The amount of the product for the order.
+        employee (Employee): The employee responsible for the order.
+        """
+        self.product = product
+        self.amount = amount
+        self.employee = employee
