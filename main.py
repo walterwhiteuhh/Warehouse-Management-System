@@ -24,6 +24,16 @@ class Product:
         self.price = price
         self.stock = stock
         
+
+    def update_stock(self, amount):
+        """
+        Update the stock level of the product by a given amount.
+        
+        Parameters:
+        amount (int): The amount to add to the stock level. Can be positive or negative.
+        """
+        self.stock += amount
+        
 class Order:
     def __init__(self, product, amount, employee):
         """
