@@ -47,3 +47,12 @@ class Order:
         self.product = product
         self.amount = amount
         self.employee = employee
+
+    def calculate_total_price(self):
+        """
+        Calculate the total price of the order.
+        
+        Returns:
+        int: The total price of the order.
+        """
+        return self.product.price * self.amount
