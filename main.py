@@ -10,32 +10,32 @@ cursor = conn.cursor()
 # Create the tables for products, orders and employees
 cursor.execute(
     """
-    CREATE TABLE products (
-        id INTEGER PRIMARY KEY,  # Unique ID for each product
-        name TEXT,  # Name of the product
-        price INTEGER,  # Price of the product
-        stock INTEGER  # Stock level of the product
+    CREATE TABLE IF NOT EXISTS products (
+        id INTEGER PRIMARY KEY, 
+        name TEXT,  
+        price INTEGER,  
+        stock INTEGER  
     )
     """
 )
 cursor.execute(
     """
-    CREATE TABLE orders (
-        id INTEGER PRIMARY KEY,  # Unique ID for each order
-        product_id INTEGER,  # ID of the product for the order
-        amount INTEGER,  # Amount of the product for the order
-        employee_id INTEGER,  # ID of the employee responsible for the order
-        FOREIGN KEY(product_id) REFERENCES products(id),  # Foreign key for product ID
-        FOREIGN KEY(employee_id) REFERENCES employees(id)  # Foreign key for employee ID
+    CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY, 
+        product_id INTEGER,  
+        amount INTEGER, 
+        employee_id INTEGER, 
+        FOREIGN KEY(product_id) REFERENCES products(id),  
+        FOREIGN KEY(employee_id) REFERENCES employees(id)  
     )
     """
 )
 cursor.execute(
     """
-    CREATE TABLE employees (
-        id INTEGER PRIMARY KEY,  # Unique ID for each employee
-        name TEXT,  # Name of the employee
-        salary INTEGER  # Salary of the employee
+    CREATE TABLE IF NOT EXISTS employees (
+        id INTEGER PRIMARY KEY, 
+        name TEXT,  
+        salary INTEGER  
     )
     """
 )
@@ -57,7 +57,7 @@ class Employee:
 class Product:
     def __init__(self, id, name, price, stock):
         """
-        Initialize a product with a name, price and stock level.
+        Initialize a product with an id, name, price and stock level.
         
         Parameters:
         id (int): The id of the product.
