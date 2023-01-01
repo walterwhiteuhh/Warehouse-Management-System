@@ -1,25 +1,71 @@
+# Import modules
+
+import sqlite3
+
+# Connect to the database
+
+conn = sqlite3.connect("warehouse.db")
+cursor = conn.cursor()
+
+# Create the tables for products, orders and employees
+cursor.execute(
+    """
+    CREATE TABLE products (
+        id INTEGER PRIMARY KEY,  # Unique ID for each product
+        name TEXT,  # Name of the product
+        price INTEGER,  # Price of the product
+        stock INTEGER  # Stock level of the product
+    )
+    """
+)
+cursor.execute(
+    """
+    CREATE TABLE orders (
+        id INTEGER PRIMARY KEY,  # Unique ID for each order
+        product_id INTEGER,  # ID of the product for the order
+        amount INTEGER,  # Amount of the product for the order
+        employee_id INTEGER,  # ID of the employee responsible for the order
+        FOREIGN KEY(product_id) REFERENCES products(id),  # Foreign key for product ID
+        FOREIGN KEY(employee_id) REFERENCES employees(id)  # Foreign key for employee ID
+    )
+    """
+)
+cursor.execute(
+    """
+    CREATE TABLE employees (
+        id INTEGER PRIMARY KEY,  # Unique ID for each employee
+        name TEXT,  # Name of the employee
+        salary INTEGER  # Salary of the employee
+    )
+    """
+)
+
 class Employee:
-    def __init__(self, name, salary):
+    def __init__(self, id, name, salary):
         """
-        Initialize an Employee with a name and salary.
+        Initialize an employee with an id, name and salary.
         
         Parameters:
-        - name (str): The name of the employee.
-        - salary (int): The salary of the employee.
+        id (int): The id of the employee.
+        name (str): The name of the employee.
+        salary (int): The salary of the employee.
         """
+        self.id = id
         self.name = name
         self.salary = salary
 
 class Product:
-    def __init__(self, name, price, stock):
+    def __init__(self, id, name, price, stock):
         """
         Initialize a product with a name, price and stock level.
         
         Parameters:
+        id (int): The id of the product.
         name (str): The name of the product.
         price (int): The price of the product.
         stock (int): The stock level of the product.
         """
+        self.id = id
         self.name = name
         self.price = price
         self.stock = stock
