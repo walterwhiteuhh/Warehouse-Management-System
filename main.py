@@ -1,104 +1,117 @@
 # Import modules
 
+import tkinter as tk
 import sqlite3
 
-# Connect to the database
+import Employee
+import Product
+import Order
+import Database
 
-conn = sqlite3.connect("warehouse.db")
-cursor = conn.cursor()
+class App:
+    def __init__(self, master):
+        self.master = master
+        self.db = Database('warehouse.db')
+        
+        # Create the widgets
+        self.employee_label = tk.Label(master, text='Employee')
+        self.product_label = tk.Label(master, text='Product')
+        self.order_label = tk.Label(master, text='Order')
+        
+        
+        self.employee_name_label = tk.Label(master, text='Name:')
+        self.employee_role_label = tk.Label(master, text='Role:')
+        self.employee_salary_label = tk.Label(master, text='Salary:')
+        self.product_name_label = tk.Label(master, text='Name:')
+        self.product_stock_label = tk.Label(master, text='Stock:')
+        self.product_price_label = tk.Label(master, text='Price:')
+        self.order_product_id_label = tk.Label(master, text='Product ID:')
+        self.order_quantity_label = tk.Label(master, text='Quantity:')
 
-# Create the tables for products, orders and employees
-cursor.execute(
-    """
-    CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY, 
-        name TEXT,  
-        price INTEGER,  
-        stock INTEGER  
-    )
-    """
-)
-cursor.execute(
-    """
-    CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY, 
-        product_id INTEGER,  
-        amount INTEGER, 
-        employee_id INTEGER, 
-        FOREIGN KEY(product_id) REFERENCES products(id),  
-        FOREIGN KEY(employee_id) REFERENCES employees(id)  
-    )
-    """
-)
-cursor.execute(
-    """
-    CREATE TABLE IF NOT EXISTS employees (
-        id INTEGER PRIMARY KEY, 
-        name TEXT,  
-        salary INTEGER  
-    )
-    """
-)
+        self.employee_name_entry = tk.Entry(master)
+        self.employee_role_entry = tk.Entry(master)
+        self.employee_salary_entry = tk.Entry(master)
+        self.product_name_entry = tk.Entry(master)
+        self.product_stock_entry = tk.Entry(master)
+        self.product_price_entry = tk.Entry(master)
+        self.order_product_id_entry = tk.Entry(master)
+        self.order_quantity_entry = tk.Entry(master)
+        
+        self.employee_add_button = tk.Button(master, text='Add', command=self.add_employee)
+        self.product_add_button = tk.Button(master, text='Add', command=self.add_product)
+        self.order_add_button = tk.Button(master, text='Place', command=self.place_order)
 
-class Employee:
-    def __init__(self, id, name, salary):
-        """
-        Initialize an employee with an id, name and salary.
+        self.employee_view_button = tk.Button(master, text='View', command=self.view_employees)
+        self.product_view_button = tk.Button(master, text='View', command=self.view_products)
+        self.order_view_button = tk.Button(master, text='View', command=self.view_orders)
         
-        Parameters:
-        id (int): The id of the employee.
-        name (str): The name of the employee.
-        salary (int): The salary of the employee.
-        """
-        self.id = id
-        self.name = name
-        self.salary = salary
+        # Set the layout
+        self.employee_label.grid(row=0, column=0)
+        self.product_label.grid(row=0, column=3)
+        self.order_label.grid(row=0, column=6)
 
-class Product:
-    def __init__(self, id, name, price, stock):
-        """
-        Initialize a product with an id, name, price and stock level.
-        
-        Parameters:
-        id (int): The id of the product.
-        name (str): The name of the product.
-        price (int): The price of the product.
-        stock (int): The stock level of the product.
-        """
-        self.id = id
-        self.name = name
-        self.price = price
-        self.stock = stock
-        
+        self.employee_name_label.grid(row=1, column=0)
+        self.employee_role_label.grid(row=2, column=0)
+        self.employee_salary_label.grid(row=3, column=0)
+        self.product_name_label.grid(row=1, column=3)
+        self.product_stock_label.grid(row=2, column=3)
+        self.product_price_label.grid(row=3, column=3)
+        self.order_product_id_label.grid(row=1, column=6)
+        self.order_quantity_label.grid(row=2, column=6)
 
-    def update_stock(self, amount):
-        """
-        Update the stock level of the product by a given amount.
-        
-        Parameters:
-        amount (int): The amount to add to the stock level. Can be positive or negative.
-        """
-        self.stock += amount
-        
-class Order:
-    def __init__(self, product, amount, employee):
-        """
-        Initialize an order with a product, amount and employee.
-        
-        Parameters:
-        product (Product): The product for the order.
-        amount (int): The amount of the product for the order.
-        employee (Employee): The employee responsible for the order.
-        """
-        self.product = product
-        self.amount = amount
-        self.employee = employee
+        self.employee_name_entry.grid(row=1, column=1)
+        self.employee_role_entry.grid(row=2, column=1)
+        self.employee_salary_entry.grid(row=3, column=1)
+        self.product_name_entry.grid(row=1, column=4)
+        self.product_stock_entry.grid(row=2, column=4)
+        self.product_price_entry.grid(row=3, column=4)
+        self.order_product_id_entry.grid(row=1, column=7)
+        self.order_quantity_entry.grid(row=2, column=7)
 
-    def calculate_total_price(self):
-        """
-        Calculate the total price of the order.
+        self.employee_add_button.grid(row=1, column=2)
+        self.product_add_button.grid(row=1, column=5)
+        self.order_add_button.grid(row=1, column=8)
+
+        self.employee_view_button.grid(row=4, column=2)
+        self.product_view_button.grid(row=4, column=5)
+        self.order_view_button.grid(row=4, column=8)
+
+        # Create the output text box
+        self.output_text = tk.Text(master)
+        self.output_text.grid(row=5, column=0, columnspan=9, padx=5, pady=5)
         
-        Returns:
-        int: The total price of the order.
-        """
-        return self.product.price * self.amount
+        
+    def add_employee(self):
+        Employee(self.db, self.employee_name_entry.get(), self.employee_role_entry.get(), self.employee_salary_entry.get())
+
+    def add_product(self):
+        Product(self.db, self.product_name_entry.get(), self.product_stock_entry.get(), self.product_price_entry.get())
+
+    def place_order(self):
+        Order(self.db, self.order_product_id_entry.get(), self.order_quantity_entry.get())
+
+    def view_employees(self):
+        self.output_text.delete(1.0, tk.END)
+        self.db.cursor.execute('''SELECT * FROM employees''')
+        rows = self.db.cursor.fetchall()
+        for row in rows:
+            self.output_text.insert(tk.END, f'ID: {row[0]}, Name: {row[1]}, Role: {row[2]}, Salary: {row[3]}\n')
+
+    def view_products(self):
+        self.output_text.delete(1.0, tk.END)
+        self.db.cursor.execute('''SELECT * FROM products''')
+        rows = self.db.cursor.fetchall()
+        for row in rows:
+            self.output_text.insert(tk.END, f'ID: {row[0]}, Name: {row[1]}, Stock: {row[2]}, Price: {row[3]}\n')
+   
+    def view_orders(self):
+        self.output_text.delete(1.0, tk.END)
+        self.db.cursor.execute('''SELECT * FROM products''')
+        rows = self.db.cursor.fetchall()
+        for row in rows:
+            self.output_text.insert(tk.END, f'ID: {row[0]}, Name: {row[1]}, Stock: {row[2]}, Price: {row[3]}\n')   
+
+if __name__ == '__main__':
+    master = tk.Tk()
+    app = App(master)
+    master.mainloop()
